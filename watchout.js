@@ -4,6 +4,14 @@ var height = 450;
 var enemyCount = 10;
 var radius = 10;
 var x, y;
+var score = 0;
+var maxScore = 0;
+var collisions = 0;
+var highScore = d3.select('#high-score');
+var currentScore = d3.select('#current-score');
+var collisionCount = d3.select('#collision-count');
+
+
 var randX = function(){
   return radius + Math.floor(Math.random() * (width -  2 * radius));
 };
@@ -11,7 +19,6 @@ var randY = function(){
   return radius + Math.floor(Math.random() * (height -  2 * radius));
 };
 var checkCollisions = function(x, y) {
-  // fix this
   var playerX = d3.select('circle.player').attr('cx');
   var playerY = d3.select('circle.player').attr('cy');
   var distance = Math.sqrt(Math.pow((playerX - x), 2) + Math.pow((playerY - y), 2));
@@ -54,11 +61,22 @@ setInterval(function(){
         var enemy = enemies[0][i];
         
         if (checkCollisions(enemy.getAttribute('cx'), enemy.getAttribute('cy'))) {
-          console.log('collision');
+          if (score > maxScore) {
+            maxScore = score;
+            highScore.text(maxScore);
+          }
+          score = 0;
+          collisions++;
+          collisionCount.text(collisions);
         }
       };
     });
   } , 1000);
+
+setInterval(function() {
+  score += 1;
+  currentScore.text(score);
+}, 50);
 
 // create friendly circle
 
