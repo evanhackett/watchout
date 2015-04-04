@@ -27,7 +27,7 @@ var checkCollisions = function(x, y) {
 
 
 var enemyData = [];
-// [o]
+
 for(var i = 0; i < enemyCount; i++){
   x = randX();
   y = randY();
@@ -43,7 +43,8 @@ var enemies = board.selectAll('circle.enemy')
 enemies.attr('cx', function(d) {return d.x;})
   .attr('cy', function(d) {return d.y;})
   .attr('r', radius)
-  .attr('class', 'enemy');
+  .attr('class', 'enemy')
+  .attr('fill', 'url(#image)');
 
 setInterval(function(){
   enemies.transition() // watch for collisions in here

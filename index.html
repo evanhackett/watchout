@@ -10,7 +10,13 @@
       <div class="current">Current score: <span id="current-score">0</span></div>
       <div class="collisions">Collisions: <span id="collision-count">0</span></div>
     </div>
-    <svg id="board"></svg>
+    <svg id="board">
+      <defs>
+        <pattern id="image" x="0" y="0" patternUnits="objectBoundingBox" height="20" width="20">
+          <image x="0" y="0" height="20" width="20" xlink:href="shuriken.png"></image>
+        </pattern>
+      </defs>
+    </svg>
     <script src="d3.js" charset="utf-8"></script>
     <script src='watchout.js'></script>
   </body>
