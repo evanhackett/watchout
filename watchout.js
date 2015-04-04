@@ -10,6 +10,11 @@ var collisions = 0;
 var highScore = d3.select('#high-score');
 var currentScore = d3.select('#current-score');
 var collisionCount = d3.select('#collision-count');
+var enemyData = [];
+var board = d3.select('#board');
+var maxX = width  - radius;
+var maxY = height - radius;
+
 
 
 var randX = function(){
@@ -18,6 +23,7 @@ var randX = function(){
 var randY = function(){
   return radius + Math.floor(Math.random() * (height -  2 * radius));
 };
+
 var checkCollisions = function(x, y) {
   var playerX = d3.select('circle.player').attr('cx');
   var playerY = d3.select('circle.player').attr('cy');
@@ -26,19 +32,17 @@ var checkCollisions = function(x, y) {
 };
 
 
-var enemyData = [];
-
 for(var i = 0; i < enemyCount; i++){
   x = randX();
   y = randY();
   enemyData.push({x: x, y: y});
 }
 
-var board = d3.select('#board');
-
 var enemies = board.selectAll('circle.enemy')
   .data(enemyData).enter()
   .append('circle');
+
+
 
 enemies.attr('cx', function(d) {return d.x;})
   .attr('cy', function(d) {return d.y;})
@@ -52,13 +56,7 @@ setInterval(function(){
     .attr('cy', randY)
     .duration(1000)
     .tween('custom', function(d, i) {
-      //console.log('Factory function. this: ' + this);
-      //console.log('d.x: ' + d.x);
       return function(t) {
-        //console.log('d.x: '+ d.x); 
-        //console.log('d.y: '+ d.y);
-        //console.log(enemies[0][i].getAttribute('cx'));
-        //debugger;
         var enemy = enemies[0][i];
         
         if (checkCollisions(enemy.getAttribute('cx'), enemy.getAttribute('cy'))) {
@@ -80,11 +78,16 @@ setInterval(function() {
 }, 50);
 
 // create friendly circle
-
 var drag = d3.behavior.drag()
   .on('dragstart', function() {player.style('fill', 'blue');})
-  .on('drag', function() {player.attr('cx', d3.event.x)
-                                .attr('cy', d3.event.y); })
+  .on('drag', function() {
+    if (d3.event.x < maxX && d3.event.x > radius) {
+      player.attr('cx', d3.event.x);
+    }
+    if (d3.event.y < maxY && d3.event.y > radius) {
+      player.attr('cy', d3.event.y);
+    }
+  })
   .on('dragend', function() {player.style('fill', 'red');});
 
 var playerData = [{'x' : width / 2, 'y' : height / 2, 'r' : radius, 'color' : 'red'}];
