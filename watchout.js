@@ -1,7 +1,7 @@
 // start slingin' some d3 here.
 var width = 700;
 var height = 450;
-var enemyCount = 30;
+var enemyCount = 10;
 var radius = 10;
 var x, y;
 var randX = function(){
@@ -9,6 +9,13 @@ var randX = function(){
 };
 var randY = function(){
   return radius + Math.floor(Math.random() * (height -  2 * radius));
+};
+var checkCollisions = function(x, y) {
+  // fix this
+  var playerX = d3.select('circle.player').attr('cx');
+  var playerY = d3.select('circle.player').attr('cy');
+  var distance = Math.sqrt(Math.pow((playerX - x), 2) + Math.pow((playerY - y), 2));
+  return distance < 2 * radius;
 };
 
 
@@ -32,9 +39,25 @@ enemies.attr('cx', function(d) {return d.x;})
   .attr('class', 'enemy');
 
 setInterval(function(){
-  enemies
+  enemies.transition() // watch for collisions in here
     .attr('cx', randX)
-    .attr('cy', randY);
+    .attr('cy', randY)
+    .duration(1000)
+    .tween('custom', function(d, i) {
+      //console.log('Factory function. this: ' + this);
+      //console.log('d.x: ' + d.x);
+      return function(t) {
+        //console.log('d.x: '+ d.x); 
+        //console.log('d.y: '+ d.y);
+        //console.log(enemies[0][i].getAttribute('cx'));
+        //debugger;
+        var enemy = enemies[0][i];
+        
+        if (checkCollisions(enemy.getAttribute('cx'), enemy.getAttribute('cy'))) {
+          console.log('collision');
+        }
+      };
+    });
   } , 1000);
 
 // create friendly circle
@@ -50,6 +73,7 @@ var player = board.selectAll('circle.player').data(playerData).enter().append('c
   .attr('cx', function(d) {return d.x;})
   .attr('cy', function(d) {return d.y;})
   .attr('r', function(d) {return d.r;})
+  .attr('class', 'player')
   .call(drag)
   .style('fill', function(d) {return d.color;});
 
