@@ -1,16 +1,9 @@
-/* your beautiful css styling goes here! */
-
-/* Note: an asteroid image is included in this repo.
-Feel free to use it if you like. */
-
 @font-face {
   font-family: "karate";
   src: url("Karate.ttf");
 }
 
 svg {
-/*  height: 450px;
-  width: 700px;*/
   display: block;
   margin:0 auto;
   background-color: #000;
@@ -34,7 +27,6 @@ svg {
 }
 
 body{
-  /*background-color: #000; */
   background-image: url(japanbackground.jpg)
 }
 
