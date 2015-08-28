@@ -1,108 +1,193 @@
-// start slingin' some d3 here.
-var width = 700;
-var height = 450;
-var enemyCount = 10;
-var radius = 10;
-var x, y;
-var score = 0;
-var maxScore = 0;
-var collisions = 0;
-var highScore = d3.select('#high-score');
-var currentScore = d3.select('#current-score');
-var collisionCount = d3.select('#collision-count');
-var enemyData = [];
-var board = d3.select('#board');
-var maxX = width  - radius;
-var maxY = height - radius;
+var h = 450,
+    w = 700,
+    container = d3.select('#board')
+                  .attr({
+                    width : w,
+                    height : h
+                  });
 
 
-
-var randX = function(){
-  return radius + Math.floor(Math.random() * (width -  2 * radius));
+var playArea = {
+  // width : w * 0.75,
+  // height : h * 0.75,
+  width: w,
+  height: h,
+  // x : w * 0.1,
+  // y : h * 0.1,
+  x : 0,
+  y : 0,
+  rx : 20,
+  ry : 20,
+  // style : "fill:white;stroke:black;stroke-width:5"
 };
-var randY = function(){
-  return radius + Math.floor(Math.random() * (height -  2 * radius));
-};
+// setup player area (player can't move outside of this rect)
+container.append('rect').attr(playArea);
 
-var checkCollisions = function(x, y) {
-  var playerX = d3.select('circle.player').attr('cx');
-  var playerY = d3.select('circle.player').attr('cy');
-  var distance = Math.sqrt(Math.pow((playerX - x), 2) + Math.pow((playerY - y), 2));
-  return distance < 2 * radius;
+var randomPlayAreaX = function() {
+  return Math.random() * playArea.width + playArea.x;
 };
 
+var randomPlayAreaY = function() {
+  return Math.random() * playArea.height + playArea.y;
+};
 
-for(var i = 0; i < enemyCount; i++){
-  x = randX();
-  y = randY();
-  enemyData.push({x: x, y: y});
-}
+var resetEnemyList = function() {return d3.range(5);};
+var enemyList = resetEnemyList();
 
-var enemies = board.selectAll('circle.enemy')
-  .data(enemyData).enter()
-  .append('circle');
+var enemyRadius = 15,
+  randomX = function() {return Math.random() * w;},
+  randomY = function() {return Math.random() * h;},
+  enemies = container.selectAll('circle.enemy')
+                     .data(enemyList)
+                     .enter()
+                     .append('circle')
+                     .attr({
+                        class: 'enemy',
+                        cx : randomX,
+                        cy : randomY,
+                        r : enemyRadius,
+                        fill: 'url(#image)'
+                     });
 
+var enemySpeed = 1;
 
+var move = function() {
+  enemies.transition()
+         .ease('linear')
+         .duration(1000/enemySpeed)
+         .attr({
+          cx : randomX,
+          cy : randomY
+         })
+         .each('end', move);
+};
+move();
 
-enemies.attr('cx', function(d) {return d.x;})
-  .attr('cy', function(d) {return d.y;})
-  .attr('r', radius)
-  .attr('class', 'enemy')
-  .attr('fill', 'url(#image)');
+var playerRadius = 20,
+    player = container.append('circle')
+                      .attr({
+                        cx : w / 2,
+                        cy : h / 2,
+                        r : playerRadius,
+                        fill : 'blue'
+                      });
 
-setInterval(function(){
-  enemies.transition() // watch for collisions in here
-    .attr('cx', randX)
-    .attr('cy', randY)
-    .duration(1000)
-    .tween('custom', function(d, i) {
-      return function(t) {
-        var enemy = enemies[0][i];
-        
-        if (checkCollisions(enemy.getAttribute('cx'), enemy.getAttribute('cy'))) {
-          if (score > maxScore) {
-            maxScore = score;
-            highScore.text(maxScore);
-          }
-          score = 0;
-          collisions++;
-          collisionCount.text(collisions);
-        }
-      };
-    });
-  } , 1000);
+player.call(d3.behavior.drag()
+                       .on('drag', function() {
+                          
+                        if (d3.event.x < playArea.width+playArea.x-playerRadius && d3.event.x > playArea.x+playerRadius) {
+                          d3.select(this).attr('cx', d3.event.x);
+                        }
+                        if (d3.event.y < playArea.height+playArea.y-playerRadius && d3.event.y > playArea.y+playerRadius) {
+                          d3.select(this).attr('cy', d3.event.y);
+                        }
 
-setInterval(function() {
-  score += 1;
-  currentScore.text(score);
-}, 50);
-
-// create friendly circle
-var drag = d3.behavior.drag()
-  .on('dragstart', function() {player.style('fill', 'blue');})
-  .on('drag', function() {
-    if (d3.event.x < maxX && d3.event.x > radius) {
-      player.attr('cx', d3.event.x);
-    }
-    if (d3.event.y < maxY && d3.event.y > radius) {
-      player.attr('cy', d3.event.y);
-    }
-  })
-  .on('dragend', function() {player.style('fill', 'red');});
-
-var playerData = [{'x' : width / 2, 'y' : height / 2, 'r' : radius, 'color' : 'red'}];
-var player = board.selectAll('circle.player').data(playerData).enter().append('circle')
-  .attr('cx', function(d) {return d.x;})
-  .attr('cy', function(d) {return d.y;})
-  .attr('r', function(d) {return d.r;})
-  .attr('class', 'player')
-  .call(drag)
-  .style('fill', function(d) {return d.color;});
+                       }));
 
 
+var detectEnemyCollision = function() {
+  enemies.each(function() {
+    var enemy = d3.select(this);
+    var x = Math.abs(enemy.attr('cx') - player.attr('cx'));
+    var y = Math.abs(enemy.attr('cy') - player.attr('cy'));
+    var distance = Math.sqrt((x*x) + (y*y));
+    if (distance <= enemyRadius + playerRadius) collideWithEnemy();
+  });
+};
+
+var collideWithEnemy = function() {
+  enemySpeed = 1;
+  currentScore = 0;
+  enemyList = resetEnemyList();
+  container.selectAll('circle.enemy')
+           .data(enemyList)
+           .exit()
+           .remove();
+  player.attr('fill', 'red');
+  setTimeout(function() {
+    player.attr('fill', 'blue');
+  }, 0);
+};
+
+d3.timer(detectEnemyCollision);
+
+var detectSlowDownOrbCollision = function() {
+  container.selectAll('circle.slowDownOrb').each(function() {
+    var orb = d3.select(this);
+    var x = Math.abs(orb.attr('cx') - player.attr('cx'));
+    var y = Math.abs(orb.attr('cy') - player.attr('cy'));
+    var distance = Math.sqrt((x*x) + (y*y));
+    if (distance <= enemyRadius + playerRadius) collideWithSlowDownOrb();
+  });
+};
+
+var collideWithSlowDownOrb = function() {
+  enemySpeed *= 0.95;
+  container.selectAll('circle.slowDownOrb')
+           .data([])
+           .exit()
+           .remove();
+};
+
+d3.timer(detectSlowDownOrbCollision);
+
+var calculateSpeedPercentage = function() {
+  return enemySpeed*100;
+};
+
+var currentScore = 0,
+    hiScore = 0,
+
+    updateScoreBoard = function() {
+      hiScore = Math.max(hiScore, currentScore);
+      currentScore += enemyList.length-4;
+      d3.select('.enemies span').text(enemyList.length);
+      d3.select('.current span').text(currentScore);
+      d3.select('.high span').text(hiScore);
+      d3.select('.enemySpeed span').text(Math.round(calculateSpeedPercentage())+'%'); //TODO format this correctly
+      d3.select('.enemyCount span').text(enemyList.length);
+    };
+setInterval(updateScoreBoard, 100);
+
+var addEnemy = function() {
+  enemyList.push(1);
+  container.selectAll('circle.enemy')
+                     .data(enemyList)
+                     .enter()
+                     .append('circle')
+                     .attr({
+                        class : 'enemy',
+                        cx : randomX,
+                        cy : randomY,
+                        r : enemyRadius,
+                        fill: 'url(#image)'
+                     });
+  enemies = container.selectAll('circle.enemy');
+};
+setInterval(addEnemy, 5000);
+
+var increaseEnemySpeed = function() {
+  enemySpeed *= 1.01;
+};
+setInterval(increaseEnemySpeed, 1000);
+
+var spawnSlowDownOrb = function() {
+  if (container.selectAll('circle.slowDownOrb').empty()) {
+    container.append('circle')
+            .attr({
+              class : 'slowDownOrb',
+              r : enemyRadius,
+              cx : randomPlayAreaX,
+              cy : randomPlayAreaY,
+              fill : 'cyan'
+            });
+  }
+};
+setInterval(spawnSlowDownOrb, 1000);
 
 
-
-
+// TODO: 
+// add bomb that resets enemy count
+// refactor detectCollision functions into a single more general function that takes a selection and a callback
 
 
