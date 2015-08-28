@@ -8,8 +8,6 @@ var h = 450,
 
 
 var playArea = {
-  // width : w * 0.75,
-  // height : h * 0.75,
   width: w,
   height: h,
   // x : w * 0.1,
@@ -18,7 +16,6 @@ var playArea = {
   y : 0,
   rx : 20,
   ry : 20,
-  // style : "fill:white;stroke:black;stroke-width:5"
 };
 // setup player area (player can't move outside of this rect)
 container.append('rect').attr(playArea);
@@ -63,7 +60,7 @@ var move = function() {
 };
 move();
 
-var playerRadius = 20,
+var playerRadius = 15,
     player = container.append('circle')
                       .attr({
                         cx : w / 2,
@@ -144,7 +141,7 @@ var currentScore = 0,
       d3.select('.enemies span').text(enemyList.length);
       d3.select('.current span').text(currentScore);
       d3.select('.high span').text(hiScore);
-      d3.select('.enemySpeed span').text(Math.round(calculateSpeedPercentage())+'%'); //TODO format this correctly
+      d3.select('.enemySpeed span').text(Math.round(calculateSpeedPercentage())+'%');
       d3.select('.enemyCount span').text(enemyList.length);
     };
 setInterval(updateScoreBoard, 100);
