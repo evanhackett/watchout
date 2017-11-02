@@ -1,4 +1,4 @@
-#watchout
+# watchout
 Try to avoid the shurikens. Collect blue orbs to slow the shurikens down. See how long you can last!
 
 Game was made with the D3.js library.
