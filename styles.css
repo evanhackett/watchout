@@ -3,6 +3,13 @@
   src: url("Karate.ttf");
 }
 
+#instructions {
+  background-color: black;
+  color: red;
+  margin: 1em;
+  padding: 1em;
+}
+
 svg {
   display: block;
   margin:0 auto;
