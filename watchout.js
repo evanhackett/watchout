@@ -28,7 +28,7 @@ var randomPlayAreaY = function() {
   return Math.random() * playArea.height + playArea.y;
 };
 
-var resetEnemyList = function() {return d3.range(5);};
+var resetEnemyList = function() {return d3.range(3);};
 var enemyList = resetEnemyList();
 
 var enemyRadius = 15,
@@ -53,10 +53,10 @@ var move = function() {
          .ease('linear')
          .duration(1000/enemySpeed)
          .attr({
-          cx : randomX,
-          cy : randomY
+           cx : randomX,
+           cy : randomY
          })
-         .each('end', move);
+         .each('end', () => setTimeout(move, 1000));
 };
 move();
 
@@ -137,7 +137,7 @@ var currentScore = 0,
 
     updateScoreBoard = function() {
       hiScore = Math.max(hiScore, currentScore);
-      currentScore += enemyList.length-4;
+      currentScore += enemyList.length-2;
       d3.select('.enemies span').text(enemyList.length);
       d3.select('.current span').text(currentScore);
       d3.select('.high span').text(hiScore);
