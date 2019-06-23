@@ -18,28 +18,13 @@ svg {
   border-color: red;
 }
 
-.enemy {
-  -webkit-animation-name: spinnerRotate;
-  -webkit-animation-duration: 0.5s;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-timing-function: ease-in-out;
-  -webkit-transform-origin: 50% 50%;
-  transform-origin: 50% 50%;
-
-}
-
-@-webkit-keyframes spinnerRotate {
-    from{-webkit-transform:rotate(0deg);}
-    to{-webkit-transform:rotate(360deg);}
-}
-
 body{
   background-image: url(japanbackground.jpg)
 }
 
-.scoreboard {
+.scoreboard, .stats{
   font-family: "karate";
-  font-size: 40px;
+  font-size: 32px;
   color: white;
   line-height: 120%;
 }
